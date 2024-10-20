@@ -1,9 +1,11 @@
 package ro.pub.cs.systems.eim.lab09.chatservicejmdns.networkservicediscoveryoperations;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,19 +25,18 @@ import ro.pub.cs.systems.eim.lab09.chatservicejmdns.view.ChatConversationFragmen
 
 public class ChatClient {
 
-    private Socket socket = null;
+    private Socket socket;
     private String host = "";
     private int port = 0;
 
-    private Context context = null;
+    private Context context;
 
     private SendThread sendThread = null;
     private ReceiveThread receiveThread = null;
 
-    private BlockingQueue<String> messageQueue = new ArrayBlockingQueue<String>(Constants.MESSAGE_QUEUE_CAPACITY);
+    private final BlockingQueue<String> messageQueue = new ArrayBlockingQueue<>(Constants.MESSAGE_QUEUE_CAPACITY);
 
-    private List<Message> conversationHistory = new ArrayList<>();
-
+    private final List<Message> conversationHistory = new ArrayList<>();
 
     public ChatClient(Context context, String host, int port) {
         this.context = context;
@@ -97,7 +98,7 @@ public class ChatClient {
                             conversationHistory.add(message);
                             if (context != null) {
                                 ChatActivity chatActivity = (ChatActivity)context;
-                                FragmentManager fragmentManager = chatActivity.getFragmentManager();
+                                FragmentManager fragmentManager = chatActivity.getSupportFragmentManager();
                                 Fragment fragment = fragmentManager.findFragmentByTag(Constants.FRAGMENT_TAG);
                                 if (fragment instanceof ChatConversationFragment && fragment.isVisible()) {
                                     ChatConversationFragment chatConversationFragment = (ChatConversationFragment)fragment;
@@ -139,7 +140,7 @@ public class ChatClient {
                             conversationHistory.add(message);
                             if (context != null) {
                                 ChatActivity chatActivity = (ChatActivity)context;
-                                FragmentManager fragmentManager = chatActivity.getFragmentManager();
+                                FragmentManager fragmentManager = chatActivity.getSupportFragmentManager();
                                 Fragment fragment = fragmentManager.findFragmentByTag(Constants.FRAGMENT_TAG);
                                 if (fragment instanceof ChatConversationFragment && fragment.isVisible()) {
                                     ChatConversationFragment chatConversationFragment = (ChatConversationFragment)fragment;
@@ -165,10 +166,6 @@ public class ChatClient {
 
     }
 
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
     public Socket getSocket() {
         return socket;
     }
@@ -177,16 +174,9 @@ public class ChatClient {
         this.context = context;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
+    @NonNull
     public String toString(){
-        return host.toString() + ":" + port;
-    }
-
-    public void setConversationHistory(List<Message> conversationHistory) {
-        this.conversationHistory = conversationHistory;
+        return host + ":" + port;
     }
 
     public List<Message> getConversationHistory() {

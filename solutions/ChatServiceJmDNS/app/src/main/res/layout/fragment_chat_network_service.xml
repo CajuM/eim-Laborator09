@@ -19,7 +19,7 @@
             android:inputType="number"
             android:textAppearance="@style/TextAppearance.AppCompat" />
 
-        <android.support.v4.widget.Space
+        <android.widget.Space
             android:layout_width="5dp"
             android:layout_height="wrap_content" />
 
@@ -32,7 +32,7 @@
             android:background="@color/colorRed"
             android:text="@string/register_service" />
 
-        <android.support.v4.widget.Space
+        <android.widget.Space
             android:layout_width="wrap_content"
             android:layout_height="5dp" />
 
@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:text="Local IP" />
 
-    <android.support.v4.widget.Space
+    <android.widget.Space
         android:layout_width="wrap_content"
         android:layout_height="1dp" />
 
@@ -89,7 +89,7 @@
 
         </LinearLayout>
 
-        <android.support.v4.widget.Space
+        <android.widget.Space
             android:layout_width="wrap_content"
             android:layout_height="1dp" />
 

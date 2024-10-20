@@ -1,7 +1,5 @@
 package ro.pub.cs.systems.eim.lab09.chatservicejmdns.controller;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 import ro.pub.cs.systems.eim.lab09.chatservicejmdns.R;
 import ro.pub.cs.systems.eim.lab09.chatservicejmdns.general.Constants;
@@ -26,11 +24,11 @@ import ro.pub.cs.systems.eim.lab09.chatservicejmdns.view.ChatConversationFragmen
 
 public class NetworkServiceAdapter extends BaseAdapter {
 
-    private Context context = null;
-    private LayoutInflater layoutInflater = null;
+    private final Context context;
+    private final LayoutInflater layoutInflater;
 
-    private ArrayList<NetworkService> data = null;
-    private NetworkServiceDiscoveryOperations NSDops = null;
+    private ArrayList<NetworkService> data;
+    private final NetworkServiceDiscoveryOperations NSDops;
 
     private static class NetworkServiceViewHolder {
         private TextView networkServiceNameTextView;
@@ -39,8 +37,8 @@ public class NetworkServiceAdapter extends BaseAdapter {
 
     private class NetworkServiceConnectButtonClickListener implements Button.OnClickListener {
 
-        private int clientPosition = -1;
-        private int clientType = -1;
+        private final int clientPosition;
+        private final int clientType;
 
         public NetworkServiceConnectButtonClickListener(int clientPosition, int clientType) {
             this.clientPosition = clientPosition;
@@ -73,23 +71,23 @@ public class NetworkServiceAdapter extends BaseAdapter {
                     chat = NSDops.getCommunicationFromClients().get(clientPosition);
                     break;
                 default:
-                    chat = null;
-                    break;
+                    return;
             }
 
-            if(chat.getSocket() != null) {
+            if (chat.getSocket() != null) {
                 ChatConversationFragment chatConversationFragment = new ChatConversationFragment();
                 Bundle arguments = new Bundle();
                 arguments.putInt(Constants.CLIENT_POSITION, clientPosition);
                 arguments.putInt(Constants.CLIENT_TYPE, clientType);
                 chatConversationFragment.setArguments(arguments);
-                FragmentManager fragmentManager = ((ChatActivity) context).getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.container_frame_layout, chatConversationFragment, Constants.FRAGMENT_TAG);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
+
+                ((ChatActivity) context).getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.container_frame_layout, chatConversationFragment, Constants.FRAGMENT_TAG)
+                        .addToBackStack(null)
+                        .commit();
             } else {
-                Toast.makeText(view.getContext(), "Cannot connect to " + chat.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(), "Cannot connect to " + chat, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -105,10 +103,6 @@ public class NetworkServiceAdapter extends BaseAdapter {
 
     public void setData(ArrayList<NetworkService> data) {
         this.data = data;
-    }
-
-    public ArrayList<NetworkService> getData() {
-        return data;
     }
 
     @Override
@@ -137,8 +131,8 @@ public class NetworkServiceAdapter extends BaseAdapter {
         if (convertView == null) {
             view = layoutInflater.inflate(R.layout.network_service, parent, false);
             networkServiceViewHolder = new NetworkServiceViewHolder();
-            networkServiceViewHolder.networkServiceNameTextView = (TextView)view.findViewById(R.id.networkservice_name_text_view);
-            networkServiceViewHolder.networkServiceConnectButton = (Button)view.findViewById(R.id.network_service_connect_button);
+            networkServiceViewHolder.networkServiceNameTextView = view.findViewById(R.id.networkservice_name_text_view);
+            networkServiceViewHolder.networkServiceConnectButton = view.findViewById(R.id.network_service_connect_button);
             view.setTag(networkServiceViewHolder);
         } else {
             view = convertView;

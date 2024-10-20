@@ -11,7 +11,7 @@ import ro.pub.cs.systems.eim.lab09.chatservicejmdns.general.Constants;
 
 public class ChatServer extends Thread {
 
-    private NetworkServiceDiscoveryOperations networkServiceDiscoveryOperations = null;
+    private final NetworkServiceDiscoveryOperations networkServiceDiscoveryOperations;
 
     private ServerSocket serverSocket = null;
 

@@ -1,21 +1,15 @@
 package ro.pub.cs.systems.eim.lab09.chatservicejmdns.view;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
 import java.util.ArrayList;
-import java.util.Enumeration;
 
 import ro.pub.cs.systems.eim.lab09.chatservicejmdns.R;
 import ro.pub.cs.systems.eim.lab09.chatservicejmdns.general.Constants;
@@ -130,16 +124,16 @@ public class ChatActivity extends AppCompatActivity {
         return networkServiceDiscoveryOperations;
     }
 
-    public void setChatNetworkServiceFragment(ChatNetworkServiceFragment chatNetworkServiceFragment) {
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.container_frame_layout, chatNetworkServiceFragment, Constants.FRAGMENT_TAG);
-        fragmentTransaction.commit();
+    public void setChatNetworkServiceFragment(Fragment chatNetworkServiceFragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.container_frame_layout, chatNetworkServiceFragment, Constants.FRAGMENT_TAG)
+                .commit();
     }
 
     public ChatNetworkServiceFragment getChatNetworkServiceFragment() {
-        FragmentManager fragmentManager = getFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentByTag(Constants.FRAGMENT_TAG);
+        Fragment fragment = getSupportFragmentManager()
+                .findFragmentByTag(Constants.FRAGMENT_TAG);
         if (fragment instanceof  ChatNetworkServiceFragment) {
             return (ChatNetworkServiceFragment)fragment;
         }
@@ -164,14 +158,11 @@ public class ChatActivity extends AppCompatActivity {
 
     public void setDiscoveredServices(final ArrayList<NetworkService> discoveredServices) {
         this.discoveredServices = discoveredServices;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                ChatNetworkServiceFragment chatNetworkServiceFragment = getChatNetworkServiceFragment();
-                if (chatNetworkServiceFragment != null && chatNetworkServiceFragment.isVisible()) {
-                    chatNetworkServiceFragment.getDiscoveredServicesAdapter().setData(discoveredServices);
-                    chatNetworkServiceFragment.getDiscoveredServicesAdapter().notifyDataSetChanged();
-                }
+        handler.post(() -> {
+            ChatNetworkServiceFragment chatNetworkServiceFragment = getChatNetworkServiceFragment();
+            if (chatNetworkServiceFragment != null && chatNetworkServiceFragment.isVisible()) {
+                chatNetworkServiceFragment.getDiscoveredServicesAdapter().setData(discoveredServices);
+                chatNetworkServiceFragment.getDiscoveredServicesAdapter().notifyDataSetChanged();
             }
         });
     }
@@ -182,24 +173,17 @@ public class ChatActivity extends AppCompatActivity {
 
     public void setConversations(final ArrayList<NetworkService> conversations) {
         this.conversations = conversations;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                ChatNetworkServiceFragment chatNetworkServiceFragment = getChatNetworkServiceFragment();
-                if (chatNetworkServiceFragment != null && chatNetworkServiceFragment.isVisible()) {
-                    chatNetworkServiceFragment.getConversationsAdapter().setData(conversations);
-                    chatNetworkServiceFragment.getConversationsAdapter().notifyDataSetChanged();
-                }
+        handler.post(() -> {
+            ChatNetworkServiceFragment chatNetworkServiceFragment = getChatNetworkServiceFragment();
+            if (chatNetworkServiceFragment != null && chatNetworkServiceFragment.isVisible()) {
+                chatNetworkServiceFragment.getConversationsAdapter().setData(conversations);
+                chatNetworkServiceFragment.getConversationsAdapter().notifyDataSetChanged();
             }
         });
     }
 
     public ArrayList<NetworkService> getConversations() {
         return conversations;
-    }
-
-    public void setWifiManager(WifiManager wifiManager) {
-        this.wifiManager = wifiManager;
     }
 
     public WifiManager getWifiManager() {

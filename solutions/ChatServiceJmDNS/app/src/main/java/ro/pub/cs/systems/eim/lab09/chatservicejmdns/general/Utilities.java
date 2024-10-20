@@ -37,7 +37,7 @@ public class Utilities {
     }
 
     public static String generateIdentifier(int length) {
-        StringBuffer result = new StringBuffer("-");
+        StringBuilder result = new StringBuilder("-");
         Random random = new Random();
         for (int index = 0; index < length; index++) {
             result.append((char)(Constants.FIRST_LETTER + random.nextInt(Constants.ALPHABET_LENGTH)));

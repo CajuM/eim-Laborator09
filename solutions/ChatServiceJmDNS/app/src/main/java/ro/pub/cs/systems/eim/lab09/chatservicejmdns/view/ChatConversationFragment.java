@@ -1,8 +1,6 @@
 package ro.pub.cs.systems.eim.lab09.chatservicejmdns.view;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
@@ -26,14 +27,15 @@ public class ChatConversationFragment extends Fragment {
 
     private LinearLayout chatCommunicationHistoryLinearLayout = null;
     private EditText messageEditText = null;
-    private Button sendMessageButton = null;
 
     private ChatClient chatClient = null;
 
     private int clientPosition;
     private int clientType;
 
-    private SendMessageButtonClickListener sendMessageButtonClickListener = new SendMessageButtonClickListener();
+    private View view = null;
+
+    private final SendMessageButtonClickListener sendMessageButtonClickListener = new SendMessageButtonClickListener();
     private class SendMessageButtonClickListener implements Button.OnClickListener {
 
         @Override
@@ -54,49 +56,50 @@ public class ChatConversationFragment extends Fragment {
         this.clientType = -1;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater layoutInflater, ViewGroup parent, Bundle state) {
-        return layoutInflater.inflate(R.layout.fragment_chat_conversation, parent, false);
-    }
-
     public synchronized void appendMessage(final Message message) {
-        chatCommunicationHistoryLinearLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                TextView messageTextView = new TextView(getActivity());
-                messageTextView.setText(message.getContent());
-                LinearLayout.LayoutParams messageTextViewLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                switch(message.getType()) {
-                    case Constants.MESSAGE_TYPE_SENT:
-                        messageTextView.setBackgroundResource(R.drawable.frame_border_sent_message);
-                        messageTextView.setGravity(Gravity.LEFT);
-                        messageTextViewLayoutParams.gravity = Gravity.LEFT;
-                        break;
-                    case Constants.MESSAGE_TYPE_RECEIVED:
-                        messageTextView.setBackgroundResource(R.drawable.frame_border_received_message);
-                        messageTextView.setGravity(Gravity.RIGHT);
-                        messageTextViewLayoutParams.gravity = Gravity.RIGHT;
-                        break;
-                }
+        chatCommunicationHistoryLinearLayout.post(() -> {
+            TextView messageTextView = new TextView(getActivity());
+            messageTextView.setText(message.getContent());
+            LinearLayout.LayoutParams messageTextViewLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
-                chatCommunicationHistoryLinearLayout.addView(messageTextView, messageTextViewLayoutParams);
+            switch(message.getType()) {
+                case Constants.MESSAGE_TYPE_SENT:
+                    messageTextView.setBackgroundResource(R.drawable.frame_border_sent_message);
+                    messageTextView.setGravity(Gravity.START);
+                    messageTextViewLayoutParams.gravity = Gravity.START;
+                    break;
 
-                Space space = new Space(getActivity());
-                LinearLayout.LayoutParams spaceLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                chatCommunicationHistoryLinearLayout.addView(space, spaceLayoutParams);
+                case Constants.MESSAGE_TYPE_RECEIVED:
+                    messageTextView.setBackgroundResource(R.drawable.frame_border_received_message);
+                    messageTextView.setGravity(Gravity.END);
+                    messageTextViewLayoutParams.gravity = Gravity.END;
+                    break;
             }
+
+            chatCommunicationHistoryLinearLayout.addView(messageTextView, messageTextViewLayoutParams);
+
+            Space space = new Space(getActivity());
+            LinearLayout.LayoutParams spaceLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            chatCommunicationHistoryLinearLayout.addView(space, spaceLayoutParams);
         });
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup parent, Bundle state) {
+        if (view == null)
+            view = inflater.inflate(R.layout.fragment_chat_conversation, parent, false);
 
         Bundle arguments = getArguments();
-        this.clientPosition = arguments.getInt(Constants.CLIENT_POSITION, -1);
-        this.clientType = arguments.getInt(Constants.CLIENT_TYPE, -1);
+        if (arguments == null) {
+            this.clientPosition = -1;
+            this.clientType = -1;
+        } else {
+            this.clientPosition = arguments.getInt(Constants.CLIENT_POSITION, -1);
+            this.clientType = arguments.getInt(Constants.CLIENT_TYPE, -1);
+        }
 
-        ChatActivity chatServiceActivity = (ChatActivity)getActivity();
+        ChatActivity chatServiceActivity = (ChatActivity) getActivity();
+        assert chatServiceActivity != null;
         NetworkServiceDiscoveryOperations networkServiceDiscoveryOperations = chatServiceActivity.getNetworkServiceDiscoveryOperations();
 
         switch (clientType) {
@@ -108,10 +111,10 @@ public class ChatConversationFragment extends Fragment {
                 break;
         }
 
-        chatCommunicationHistoryLinearLayout = (LinearLayout)getActivity().findViewById(R.id.chat_communication_history_linear_layout);
-        messageEditText = (EditText)getActivity().findViewById(R.id.message_edit_text);
+        chatCommunicationHistoryLinearLayout = view.findViewById(R.id.chat_communication_history_linear_layout);
+        messageEditText = view.findViewById(R.id.message_edit_text);
 
-        sendMessageButton = (Button)getActivity().findViewById(R.id.send_message_button);
+        Button sendMessageButton = view.findViewById(R.id.send_message_button);
         sendMessageButton.setOnClickListener(sendMessageButtonClickListener);
 
         if (chatClient != null) {
@@ -121,14 +124,8 @@ public class ChatConversationFragment extends Fragment {
                 appendMessage(conversation);
             }
         }
-    }
 
-    public int getClientPosition() {
-        return clientPosition;
-    }
-
-    public int getClientType() {
-        return clientType;
+        return view;
     }
 
     @Override
